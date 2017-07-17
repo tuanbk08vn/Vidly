@@ -1,0 +1,36 @@
+﻿@model Vidly.ViewModels.CustomerViewModel
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Edit</h2>
+@if (Model == null)
+{
+    <h2>No result of Customer</h2>
+}
+else
+{
+    <table class="table table-bordered table-condensed table-responsive">
+        <tr class="text-center">
+            <th  class="text-center">ID</th>
+            <th  class="text-center">Customer</th>
+            <th  class="text-center">MembershipType</th>
+            <th  class="text-center">Subsriber To News Letter</th>
+        </tr>
+        @try
+        {
+            <tr class="text-center text-primary">
+                <td>@Model.Id</td>
+                <td>@Model.Name</td>
+                <td>@Model.MembershipType.Name</td>
+                <td>@Model.IsSubsriberdToNewsLetter.ToString()</td>
+            </tr>
+        }
+        catch (Exception e)
+        {
+
+        }
+
+    </table>
+}
