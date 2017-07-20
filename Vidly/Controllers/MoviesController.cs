@@ -1,6 +1,10 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
 using System.Web.Mvc;
+using Vidly.DAL;
 using Vidly.Models;
 using Vidly.ViewModels;
 
@@ -8,6 +12,14 @@ namespace Vidly.Controllers
 {
     public class MoviesController : Controller
     {
+        private VidlyContext _dbContext;
+
+        //Constructor initilizes Context for this Controller
+        public MoviesController()
+        {
+            _dbContext = new VidlyContext();
+        }
+
         // GET: Movies
         [Route("movies/random")]
         public ActionResult Random()
@@ -16,19 +28,7 @@ namespace Vidly.Controllers
             {
                 new Movie {Id = 1, Name = "Shrek!"},
                 new Movie {Id = 2, Name = "Star World"}
-
             };
-
-            //var customers = new List<Customer>
-            //{
-            //    new Customer {Name = "Customer 1"},
-            //    new Customer {Name = "Customer 2"},
-            //    new Customer {Name = "Customer 3"},
-            //    new Customer {Name = "Customer 4"},
-            //    new Customer {Name = "Customer 5"},
-            //    new Customer {Name = "Customer 6"}
-            //};
-
             var viewModel = new RandomMovieViewModel()
             {
                 Movie = movies,
@@ -37,6 +37,7 @@ namespace Vidly.Controllers
 
             return View(viewModel);
         }
+
         [Route("movies/released/{year}/{month:regex(\\d{2}):range(1,12)}")]
         public ActionResult ByReleaseDate(int year, int month)
         {
@@ -56,14 +57,39 @@ namespace Vidly.Controllers
             return View(model);
         }
 
-        public ActionResult Index(int? pageIndex, string SortBy)
+        public ActionResult Index()
         {
-            if (!pageIndex.HasValue)
-                pageIndex = 1;
-            if (String.IsNullOrEmpty(SortBy))
-                SortBy = "Name";
+            try
+            {
+                var movies = _dbContext.Movies
+                    .Include(g => g.Genre)
+                    .Select(Mapper.Map<Movie, MovieViewModel>)
+                    .ToList();
+                return View(movies);
+            }
+            catch (Exception e)
+            {
+                return View();
+            }
+        }
 
-            return Content(String.Format("pageIndex = {0} & SortBy = {1}", pageIndex, SortBy));
+        public ActionResult Detail(int? id)
+        {
+            try
+            {
+                if (id == null)
+                    return RedirectToAction("Index");
+                var movie = _dbContext.Movies
+                    .Include(m => m.Genre)
+                    .Select(Mapper.Map<Movie, MovieViewModel>)
+                    .FirstOrDefault(i => i.Id == id);
+                return View(movie);
+
+            }
+            catch (Exception e)
+            {
+                return RedirectToAction("Index");
+            }
         }
     }
 }

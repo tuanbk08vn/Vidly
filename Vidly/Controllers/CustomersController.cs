@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using System;
 using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Web.Mvc;
 using Vidly.DAL;
@@ -26,32 +27,113 @@ namespace Vidly.Controllers
         //[Route("customers")]
         public ActionResult Index()
         {
-            var customers = _dbContext.Customers
-                .Include(m => m.MembershipType)
-                .Select(Mapper.Map<Customer, CustomerViewModel>)
-                .ToList();
+            //try
+            //{
+            //    var customers = _dbContext.Customers
+            //        .Include(m => m.MembershipType)
+            //        .Select(Mapper.Map<Customer, CustomerViewModel>)
+            //        .ToList();
 
-            return View(customers);
+            //    return View(customers);
+            //}
+            //catch (Exception e)
+            //{
+            //    return View();
+            //}
+            return View();
         }
 
         //[Route("customers/edit/{id}")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
-                return Content("Customer cannot be found. Please back to home!");
+                return HttpNotFound();
             try
             {
                 var customer = _dbContext.Customers
                     .Include(m => m.MembershipType)
                     .Select(Mapper.Map<Customer, CustomerViewModel>)
                     .FirstOrDefault(i => i.Id == id);
-                return View(customer);
+
+                var viewModel = new CustomerFormViewModel()
+                {
+                    Customer = customer,
+                    MembershipTypes = _dbContext.MembershipTypes.ToList()
+                };
+                return View("CustomerForm", viewModel);
             }
             catch (Exception e)
             {
                 return View();
-
             }
+        }
+
+        //CreateAndUpdate New Customer
+        public ActionResult New()
+        {
+            var membershipTypes = _dbContext.MembershipTypes.ToList();
+            var viewModel = new CustomerFormViewModel()
+            {
+                //Customer = new CustomerViewModel(),
+                MembershipTypes = membershipTypes
+            };
+            return View("CustomerForm", viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateAndUpdate(CustomerFormViewModel formViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+
+                    var currentCustomer = _dbContext.Customers.FirstOrDefault(m => m.Id == formViewModel.Customer.Id);
+                    if (currentCustomer == null)
+                    {
+                        currentCustomer = new Customer();
+                    }
+                    currentCustomer.Name = formViewModel.Customer.Name;
+                    currentCustomer.MembershipTypeId = formViewModel.Customer.MembershipTypeId;
+                    currentCustomer.Birthdate = formViewModel.Customer.Birthdate;
+                    currentCustomer.IsSubsriberdToNewsLetter = formViewModel.Customer.IsSubsriberdToNewsLetter;
+                    //_dbContext.Entry(currentCustomer).State = EntityState.Modified;
+
+                    //}
+                    //else
+                    //{
+                    //    var customer = new Customer();
+                    //    customer.Name = formViewModel.Customer.Name;
+                    //    customer.MembershipTypeId = formViewModel.Customer.MembershipTypeId;
+                    //    customer.Birthdate = formViewModel.Customer.Birthdate;
+                    //    customer.IsSubsriberdToNewsLetter = formViewModel.Customer.IsSubsriberdToNewsLetter;
+                    //    _dbContext.Customers.Ad;
+                    //}
+                    _dbContext.Customers.AddOrUpdate(currentCustomer);
+                    //_dbContext.Customers.AddOrUpdate(m => m.Id, new Customer
+                    //{
+                    //    Id = formViewModel.Customer.Id,
+                    //    Name = formViewModel.Customer.Name,
+                    //    MembershipTypeId = formViewModel.Customer.MembershipTypeId
+                    //});
+                    TempData["NewCustomerNotification"] = "Successfully!";
+
+
+                    _dbContext.SaveChanges();
+                    return RedirectToAction("Index", "Customers");
+                }
+                catch (Exception e)
+                {
+                    TempData["NewCustomerError"] = "Something Wrong with Data Input!";
+                }
+            }
+            var viewModel = new CustomerFormViewModel()
+            {
+                Customer = formViewModel.Customer,
+                MembershipTypes = _dbContext.MembershipTypes.ToList()
+            };
+            return View("CustomerForm", viewModel);
         }
     }
 }

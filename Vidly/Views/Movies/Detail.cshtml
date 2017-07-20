@@ -1,0 +1,29 @@
+﻿@model Vidly.ViewModels.MovieViewModel
+@{
+    ViewBag.Title = "Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Detail</h2>
+
+@if (Model == null)
+{
+    <h2>Movie not Found</h2>
+}
+else
+{
+    <ul class="">
+        @try
+        {
+            <li class=""><label>Name: </label>@Model.Name</li>
+            <li class=""><label>Genre: </label>@Model.Genre.Name</li>
+            <li class=""><label>Release Date: </label>@Model.ReleaseDate</li>
+            <li class=""><label>Date Added: </label>@Model.DateAdded</li>
+            <li class=""><label>Instock: </label>@Model.NumberInStock<span> (items)</span></li>
+        }
+        catch (Exception e)
+        {
+        }
+
+    </ul>
+}

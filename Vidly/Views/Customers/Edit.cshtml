@@ -1,4 +1,5 @@
-﻿@model Vidly.ViewModels.CustomerViewModel
+﻿@using System.Activities.Expressions
+@model Vidly.ViewModels.CustomerViewModel
 @{
     ViewBag.Title = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -15,6 +16,7 @@ else
         <tr class="text-center">
             <th  class="text-center">ID</th>
             <th  class="text-center">Customer</th>
+            <th  class="text-center">Birthdate</th>
             <th  class="text-center">MembershipType</th>
             <th  class="text-center">Subsriber To News Letter</th>
         </tr>
@@ -23,6 +25,17 @@ else
             <tr class="text-center text-primary">
                 <td>@Model.Id</td>
                 <td>@Model.Name</td>
+                <td>
+                    @if (Model.Birthdate.HasValue)
+                    {
+                       @Model.Birthdate.Value.ToShortDateString()
+                    }
+                    else
+                    {
+                        @Html.DisplayText("Not Available")
+                    }
+                </td>
+
                 <td>@Model.MembershipType.Name</td>
                 <td>@Model.IsSubsriberdToNewsLetter.ToString()</td>
             </tr>
