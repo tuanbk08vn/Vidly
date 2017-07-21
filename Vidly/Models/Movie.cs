@@ -15,6 +15,9 @@ namespace Vidly.Models
         public DateTime? ReleaseDate { get; set; }
 
         public DateTime? DateAdded { get; set; }
+
         public int NumberInStock { get; set; }
+
+        public int? NumberAvailable { get; set; }
     }
 }

@@ -30,6 +30,14 @@ namespace Vidly.App_Start
             CreateMap<MembershipType, MembershipTypeDto>();
             CreateMap<MembershipTypeDto, MembershipType>();
             //CreateMap<Customer, CustomerDto>().ForMember(m => m.Id, opt => opt.Ignore());
+
+            CreateMap<RentalViewModel, Rental>();
+            CreateMap<Rental, RentalViewModel>();
+
+            CreateMap<NewRentalDto, Rental>();
+            CreateMap<Rental, NewRentalDto>();
+
+
         }
     }
 }
